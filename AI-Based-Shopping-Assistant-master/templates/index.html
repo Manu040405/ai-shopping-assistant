@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Shopping Assistant</title>
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <!-- Chart.js for visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* Body and general styling */
+      body {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+        overflow-x: hidden;
+        font-family: "Poppins", sans-serif;
+        color: #333;
+      }
+
+      /* Header styling */
+      .site-header {
+        background: linear-gradient(90deg, #6a11cb 0%, #2575fc 100%);
+        border-bottom: none;
+        padding: 1rem 0;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      }
+
+      .brand-icon {
+        color: #ffffff;
+        font-size: 2.2rem;
+        margin-right: 1rem;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      /* Chat container styling */
+      .chat-container {
+        height: 400px;
+        overflow-y: auto;
+        padding: 1rem;
+        background-color: #ffffff;
+        border-radius: 0.5rem;
+        border: 1px solid #e0e0e0;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+      }
+
+      .message {
+        margin-bottom: 1rem;
+        display: flex;
+      }
+
+      .message.user {
+        justify-content: flex-end;
+      }
+
+      .message.bot {
+        justify-content: flex-start;
+      }
+
+      .message-content {
+        max-width: 80%;
+        padding: 0.75rem 1rem;
+        border-radius: 1rem;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .message.user .message-content {
+        background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+        color: white;
+        border-bottom-right-radius: 0.25rem;
+      }
+
+      .message.bot .message-content {
+        background-color: #f8f9fa;
+        color: #333;
+        border-bottom-left-radius: 0.25rem;
+        border-left: 4px solid #ff6b6b;
+      }
+
+      /* Input box styling */
+      .chat-input-container {
+        background-color: #f8f9fa;
+        border-top: 1px solid #e0e0e0;
+        padding: 1rem;
+        border-radius: 0 0 0.5rem 0.5rem;
+      }
+
+      .chat-input {
+        background-color: #ffffff;
+        border: 1px solid #ced4da;
+        color: #333;
+        border-radius: 20px;
+        transition: all 0.3s ease;
+      }
+
+      .chat-input:focus {
+        background-color: #ffffff;
+        border-color: #2575fc;
+        box-shadow: 0 0 0 0.25rem rgba(37, 117, 252, 0.25);
+      }
+
+      /* Product display styling */
+      .product-container {
+        height: 500px;
+        overflow-y: auto;
+        background-color: #ffffff;
+        border-radius: 0.5rem;
+        border: 1px solid #e0e0e0;
+        padding: 1rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+      }
+
+      .product-card {
+        background-color: #ffffff;
+        border: 1px solid #e0e0e0;
+        border-radius: 0.5rem;
+        overflow: hidden;
+        transition: transform 0.3s, box-shadow 0.3s;
+        height: 100%;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+      }
+
+      .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+      }
+
+      .product-image {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #e0e0e0;
+      }
+
+      .product-info {
+        padding: 1rem;
+        background: linear-gradient(to right, #f8f9fa, #ffffff);
+      }
+
+      .product-title {
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+        color: #333;
+        font-weight: 600;
+      }
+
+      .product-category {
+        color: #ff6b6b;
+        font-size: 0.9rem;
+        font-weight: 500;
+      }
+
+      /* Recommendation styling */
+      .recommendation-card {
+        background: linear-gradient(120deg, #f8f9fa 0%, #ffffff 100%);
+        border: 1px solid #e0e0e0;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-top: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+      }
+
+      .recommendation-item {
+        display: inline-block;
+        background: linear-gradient(90deg, #ff6b6b 0%, #ff9b8c 100%);
+        border: none;
+        border-radius: 2rem;
+        padding: 0.5rem 1.2rem;
+        margin: 0.3rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        color: white;
+        font-weight: 500;
+        box-shadow: 0 3px 8px rgba(255, 107, 107, 0.3);
+      }
+
+      .recommendation-item:hover {
+        background: linear-gradient(90deg, #ff9b8c 0%, #ff6b6b 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 12px rgba(255, 107, 107, 0.4);
+      }
+
+      .recommendation-label {
+        margin-right: 0.5rem;
+        color: rgba(255, 255, 255, 0.9);
+        font-weight: 600;
+      }
+
+      /* Chart styling */
+      .chart-container {
+        background: linear-gradient(120deg, #ffffff 0%, #f8f9fa 100%);
+        border: 1px solid #e0e0e0;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-top: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+      }
+
+      /* Visualization container */
+      .visualization-container {
+        background: linear-gradient(120deg, #ffffff 0%, #f8f9fa 100%);
+        border: 1px solid #e0e0e0;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-top: 1.5rem;
+        min-height: 260px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+      }
+
+      /* Loading spinner */
+      .spinner-grow {
+        width: 1rem;
+        height: 1rem;
+        margin-right: 0.5rem;
+      }
+
+      /* Voice button pulse animation */
+      @keyframes pulse {
+        0% {
+          box-shadow: 0 0 0 0 rgba(13, 202, 240, 0.7);
+        }
+        70% {
+          box-shadow: 0 0 0 10px rgba(13, 202, 240, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(13, 202, 240, 0);
+        }
+      }
+
+      .btn-pulse {
+        animation: pulse 1.5s infinite;
+      }
+
+      /* Mobile responsiveness */
+      @media (max-width: 768px) {
+        .message-content {
+          max-width: 90%;
+        }
+
+        .chat-container,
+        .product-container {
+          height: 350px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header
+      class="site-header"
+      style="
+        background: linear-gradient(90deg, #6a11cb 0%, #2575fc 100%);
+        padding: 1rem 0;
+        color: white;
+      "
+    >
+      <div class="container">
+        <div class="d-flex align-items-center">
+          <i class="fa-solid fa-robot brand-icon text-white me-2"></i>
+          <h1 class="h3 mb-0">AI Shopping Assistant</h1>
+        </div>
+      </div>
+    </header>
+
+    <main class="container py-4">
+      <div class="row gx-4">
+        <!-- Chat Section -->
+        <div class="col-lg-6 mb-4">
+          <div class="card border-0 shadow-sm">
+            <div
+              class="card-header"
+              style="
+                background: linear-gradient(90deg, #6a11cb 0%, #2575fc 100%);
+                color: white;
+                border: none;
+              "
+            >
+              <h5 class="mb-0">
+                <i class="fa-solid fa-comments me-2"></i>Chat with Shopping
+                Assistant
+              </h5>
+            </div>
+            <div class="chat-container" id="chatContainer">
+              <div class="message bot">
+                <div class="message-content">
+                  <p class="mb-1">
+                    👋 Hi! I'm your AI shopping assistant. What would you like
+                    to shop for today?
+                  </p>
+                  <p class="mb-0 text-muted small">
+                    Try searching for items like 'dress', 'shoes', 'laptop',
+                    'watch', etc.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="chat-input-container">
+              <form id="chatForm" class="d-flex">
+                <input
+                  type="text"
+                  id="chatInput"
+                  class="form-control chat-input me-2"
+                  placeholder="Type your message..."
+                />
+                <button
+                  type="button"
+                  id="voiceSearchBtn"
+                  class="btn btn-info me-2"
+                  title="Voice Search"
+                >
+                  <i class="fa-solid fa-microphone"></i>
+                </button>
+                <button type="submit" class="btn btn-primary">
+                  <i class="fa-solid fa-paper-plane"></i>
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Product Display Section -->
+        <div class="col-lg-6 mb-4">
+          <div class="card border-0 shadow-sm">
+            <div
+              class="card-header"
+              style="
+                background: linear-gradient(90deg, #ff6b6b 0%, #ff9b8c 100%);
+                color: white;
+                border: none;
+              "
+            >
+              <h5 class="mb-0">
+                <i class="fa-solid fa-bag-shopping me-2"></i>Products
+              </h5>
+            </div>
+            <div class="product-container" id="productContainer">
+              <div
+                class="d-flex flex-column justify-content-center align-items-center h-100"
+              >
+                <i
+                  class="fa-solid fa-magnifying-glass fa-4x mb-3 text-muted"
+                ></i>
+                <p class="text-muted">Search for products using the chat</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recommendations Row -->
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="recommendation-card">
+            <h5 class="mb-3">
+              <i class="fa-solid fa-thumbs-up me-2"></i>Recommended for You
+            </h5>
+            <div id="recommendationsContainer" class="d-flex flex-wrap">
+              <div
+                class="d-flex justify-content-center align-items-center w-100 py-3"
+              >
+                <p class="text-muted">
+                  Recommendations will appear after searching
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Data Visualization Rows -->
+      <div class="row mt-4">
+        <div class="col-lg-6">
+          <div class="chart-container">
+            <h5 class="mb-3">
+              <i class="fa-solid fa-chart-column me-2"></i>Shopping Trends
+            </h5>
+            <canvas id="shoppingChart" height="220"></canvas>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="visualization-container" style="min-height: 260px">
+            <h5 class="mb-3">
+              <i class="fa-solid fa-diagram-project me-2"></i>Cluster
+              Visualization
+            </h5>
+            <div id="visualizationContainer" class="text-center w-100">
+              <p class="text-muted">
+                Shopping pattern visualization will appear after searching
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Shopping Tips Row -->
+      <div class="row mt-4">
+        <div class="col-lg-12">
+          <div
+            class="card border-0 shadow-sm"
+            style="background: linear-gradient(135deg, #2c3e50, #4a6572)"
+          >
+            <div
+              class="card-header"
+              style="
+                background: linear-gradient(90deg, #2c3e50, #4a6572);
+                border: none;
+              "
+            >
+              <h5 class="mb-0 text-white">
+                <i class="fa-solid fa-lightbulb me-2 text-warning"></i>Shopping
+                Tips
+              </h5>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-4 mb-3">
+                  <div class="d-flex">
+                    <div class="flex-shrink-0">
+                      <i class="fa-solid fa-star text-warning fa-2x me-3"></i>
+                    </div>
+                    <div>
+                      <h5 class="text-white">Voice Search</h5>
+                      <p class="text-white-50">
+                        Click the microphone button and speak to search for
+                        products.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                  <div class="d-flex">
+                    <div class="flex-shrink-0">
+                      <i class="fa-solid fa-tags text-warning fa-2x me-3"></i>
+                    </div>
+                    <div>
+                      <h5 class="text-white">Recommendations</h5>
+                      <p class="text-white-50">
+                        Click on any recommended item to quickly search for it.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                  <div class="d-flex">
+                    <div class="flex-shrink-0">
+                      <i
+                        class="fa-solid fa-arrow-trend-up text-warning fa-2x me-3"
+                      ></i>
+                    </div>
+                    <div>
+                      <h5 class="text-white">Trending Items</h5>
+                      <p class="text-white-50">
+                        Check the charts to see popular products and shopping
+                        patterns.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer
+      class="py-4 mt-4"
+      style="background: linear-gradient(90deg, #2c3e50, #4a6572)"
+    >
+      <div class="container">
+        <div class="text-center">
+          <p class="text-white-50 mb-0">
+            © 2025 AI Shopping Assistant | All rights reserved
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // DOM Elements
+        const chatForm = document.getElementById("chatForm");
+        const chatInput = document.getElementById("chatInput");
+        const chatContainer = document.getElementById("chatContainer");
+        const productContainer = document.getElementById("productContainer");
+        const recommendationsContainer = document.getElementById(
+          "recommendationsContainer"
+        );
+        const voiceSearchBtn = document.getElementById("voiceSearchBtn");
+        const shoppingChart = document.getElementById("shoppingChart");
+
+        // Store categories
+        let productCategories = ["dress", "shoes", "watch", "laptop", "shirt"];
+
+        // Setup Web Speech API for voice search with fallback to text input
+        const setupSpeechRecognition = () => {
+          let recognition = null;
+          let isWebSpeechSupported = false;
+
+          // First check if browser supports newer SpeechRecognition
+          if ("SpeechRecognition" in window) {
+            recognition = new SpeechRecognition();
+            isWebSpeechSupported = true;
+          }
+          // Then try webkit prefixed version
+          else if ("webkitSpeechRecognition" in window) {
+            recognition = new webkitSpeechRecognition();
+            isWebSpeechSupported = true;
+          }
+
+          if (isWebSpeechSupported) {
+            console.log("Speech recognition is supported");
+
+            // Configure recognition
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = "en-US";
+
+            recognition.onresult = function (event) {
+              try {
+                const transcript = event.results[0][0].transcript;
+                chatInput.value = transcript;
+
+                // Add user message to chat
+                addMessage("user", transcript);
+
+                // Process search
+                processSearch(transcript);
+              } catch (error) {
+                console.error("Error processing speech result:", error);
+                addMessage(
+                  "bot",
+                  "Sorry, there was an error processing your speech. Please try again or type your query."
+                );
+              }
+
+              // Reset UI regardless of result
+              resetVoiceButton();
+            };
+
+            recognition.onerror = function (event) {
+              console.error("Speech recognition error:", event.error);
+
+              // Different error handling based on error type
+              if (event.error === "no-speech") {
+                addMessage(
+                  "bot",
+                  "I didn't hear anything. Please try again or type your query."
+                );
+              } else if (event.error === "network") {
+                addMessage(
+                  "bot",
+                  "Network error occurred. Please check your connection and try again."
+                );
+              } else if (
+                event.error === "not-allowed" ||
+                event.error === "service-not-allowed"
+              ) {
+                addMessage(
+                  "bot",
+                  "Microphone access is not allowed. Please enable microphone permissions."
+                );
+              } else {
+                addMessage(
+                  "bot",
+                  "Sorry, I could not understand what you said. Please try again or type your query."
+                );
+              }
+
+              // Reset UI
+              resetVoiceButton();
+            };
+
+            recognition.onend = function () {
+              // Reset UI
+              resetVoiceButton();
+            };
+
+            // Function to reset voice button UI
+            function resetVoiceButton() {
+              voiceSearchBtn.innerHTML =
+                '<i class="fa-solid fa-microphone"></i>';
+              voiceSearchBtn.classList.remove("btn-danger");
+              voiceSearchBtn.classList.add("btn-info");
+              voiceSearchBtn.disabled = false;
+            }
+
+            return recognition;
+          } else {
+            console.warn("Speech recognition is not supported in this browser");
+            // Hide the button as voice search is not supported
+            voiceSearchBtn.style.display = "none";
+            return null;
+          }
+        };
+
+        // Initialize speech recognition
+        let recognition = setupSpeechRecognition();
+
+        // Voice search button handler
+        voiceSearchBtn.addEventListener("click", function () {
+          if (recognition) {
+            try {
+              // Disable button during recognition to prevent multiple clicks
+              voiceSearchBtn.disabled = true;
+
+              // Update button to show recording
+              voiceSearchBtn.innerHTML =
+                '<i class="fa-solid fa-microphone-slash"></i>';
+              voiceSearchBtn.classList.remove("btn-info");
+              voiceSearchBtn.classList.add("btn-danger");
+
+              // Add listening message
+              addMessage("bot", "Listening... speak now.");
+
+              // Start recognition with timeout
+              recognition.start();
+
+              // Set a timeout to abort if no response
+              setTimeout(() => {
+                try {
+                  if (voiceSearchBtn.classList.contains("btn-danger")) {
+                    recognition.abort();
+                  }
+                } catch (e) {
+                  console.log("Timeout handling error:", e);
+                }
+              }, 10000); // 10 second timeout
+            } catch (e) {
+              console.error("Recognition start error:", e);
+              addMessage(
+                "bot",
+                "There was an error starting voice recognition. Please try typing your query instead."
+              );
+
+              // Reset UI on error
+              voiceSearchBtn.innerHTML =
+                '<i class="fa-solid fa-microphone"></i>';
+              voiceSearchBtn.classList.remove("btn-danger");
+              voiceSearchBtn.classList.add("btn-info");
+              voiceSearchBtn.disabled = false;
+            }
+          } else {
+            // Fallback for browsers without speech recognition
+            addMessage(
+              "bot",
+              "Voice search is not supported in your browser. Please type your query."
+            );
+          }
+        });
+
+        // Chat form submission
+        chatForm.addEventListener("submit", function (e) {
+          e.preventDefault();
+          const message = chatInput.value.trim();
+
+          if (message.length === 0) return;
+
+          // Add user message to chat
+          addMessage("user", message);
+
+          // Clear input
+          chatInput.value = "";
+
+          // Process search
+          processSearch(message);
+        });
+
+        // Function to process search
+        function processSearch(query) {
+          // Show loading spinner
+          showLoading(productContainer);
+
+          // Send search request to backend
+          fetch("/api/search", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ query: query }),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.status === "success") {
+                // Display products
+                displayProducts(data.query, data.images, data.imageBaseUrl);
+
+                // Display recommendations
+                updateRecommendations(data.recommendations);
+
+                // Update visualization
+                if (data.visualization) {
+                  updateVisualization(data.visualization);
+                }
+
+                // Add bot response
+                const responseText =
+                  data.images.length > 0
+                    ? `Here are the search results for "${data.query}". I've also included some recommendations based on your interests.`
+                    : `I couldn't find any products matching "${data.query}". Here are some recommendations you might like instead.`;
+
+                addMessage("bot", responseText);
+              } else {
+                // Display error
+                productContainer.innerHTML = `
+                            <div class="d-flex flex-column justify-content-center align-items-center h-100">
+                                <i class="fa-solid fa-triangle-exclamation fa-4x mb-3 text-warning"></i>
+                                <p class="text-muted">Error: ${
+                                  data.message ||
+                                  "An error occurred during search."
+                                }</p>
+                            </div>
+                        `;
+
+                // Add bot response for error
+                addMessage(
+                  "bot",
+                  `Sorry, I encountered an error: ${
+                    data.message || "An error occurred during search."
+                  }`
+                );
+              }
+            })
+            .catch((error) => {
+              console.error("Search error:", error);
+
+              // Display error
+              productContainer.innerHTML = `
+                        <div class="d-flex flex-column justify-content-center align-items-center h-100">
+                            <i class="fa-solid fa-triangle-exclamation fa-4x mb-3 text-warning"></i>
+                            <p class="text-muted">Error: Could not connect to the server. Please try again later.</p>
+                        </div>
+                    `;
+
+              // Add bot response for error
+              addMessage(
+                "bot",
+                "Sorry, I encountered an error while processing your request. Please try again later."
+              );
+            });
+        }
+
+        // Function to add a message to the chat
+        function addMessage(type, content) {
+          const messageDiv = document.createElement("div");
+          messageDiv.classList.add("message", type);
+
+          const messageContent = document.createElement("div");
+          messageContent.classList.add("message-content");
+
+          if (type === "bot" && content === "Listening... speak now.") {
+            // Special formatting for listening prompt
+            messageContent.innerHTML = `
+                        <div class="d-flex align-items-center">
+                            <div class="spinner-grow text-info" role="status">
+                                <span class="visually-hidden">Listening...</span>
+                            </div>
+                            <p class="mb-0">${content}</p>
+                        </div>
+                    `;
+          } else {
+            messageContent.innerHTML = `<p class="mb-0">${content}</p>`;
+          }
+
+          messageDiv.appendChild(messageContent);
+          chatContainer.appendChild(messageDiv);
+
+          // Scroll to bottom of chat
+          chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        // Function to display products
+        function displayProducts(query, images, baseUrl) {
+          if (images.length === 0) {
+            // No products found
+            productContainer.innerHTML = `
+                        <div class="d-flex flex-column justify-content-center align-items-center h-100">
+                            <i class="fa-solid fa-box-open fa-4x mb-3 text-muted"></i>
+                            <p class="text-muted">No products found for "${query}"</p>
+                            <p class="text-muted small">Try searching for something else</p>
+                        </div>
+                    `;
+            return;
+          }
+
+          // Clear container
+          productContainer.innerHTML = "";
+
+          // Create row for product cards
+          const row = document.createElement("div");
+          row.className = "row g-3";
+
+          // Add product cards
+          images.forEach((image, index) => {
+            const colDiv = document.createElement("div");
+            colDiv.className = "col-md-6 col-xl-4";
+
+            const cardHtml = `
+                        <div class="product-card">
+                            <div class="position-relative">
+                                <div class="product-image d-flex align-items-center justify-content-center">
+                                    <i class="fa-solid fa-box fa-3x text-secondary"></i>
+                                </div>
+                                <img src="${baseUrl}/${image}" class="product-image" alt="${query} product" 
+                                     onerror="this.onerror=null; this.src='https://placehold.co/400x300/212529/495057?text=${query}'; this.alt='Product image placeholder'">
+                            </div>
+                            <div class="product-info">
+                                <h5 class="product-title">${query} #${
+              index + 1
+            }</h5>
+                                <p class="product-category mb-0">${getRandomPrice()}</p>
+                            </div>
+                        </div>
+                    `;
+
+            colDiv.innerHTML = cardHtml;
+            row.appendChild(colDiv);
+          });
+
+          // Add row to container
+          productContainer.appendChild(row);
+        }
+
+        // Function to update the visualization
+        function updateVisualization(imageData) {
+          const visualContainer = document.getElementById(
+            "visualizationContainer"
+          );
+          if (visualContainer) {
+            visualContainer.innerHTML = `
+                        <img src="${imageData}" class="img-fluid rounded" alt="Shopping patterns visualization" style="max-height: 220px; width: auto;">
+                    `;
+          }
+        }
+
+        // Function to show loading spinner
+        function showLoading(container) {
+          container.innerHTML = `
+                    <div class="d-flex justify-content-center align-items-center h-100">
+                        <div class="spinner-border text-info" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                `;
+        }
+
+        // Helper function to generate random price for display purposes
+        function getRandomPrice() {
+          const price = (Math.random() * 100 + 10).toFixed(2);
+          return `$${price}`;
+        }
+
+        // Initialize chart
+        function initChart() {
+          if (!shoppingChart) return;
+
+          // Get categories from server
+          fetch("/api/categories")
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.status === "success") {
+                productCategories = data.categories;
+
+                // Create sample data for initial chart
+                const categories = productCategories.slice(0, 7);
+                const values = categories.map(() =>
+                  Math.floor(Math.random() * 100)
+                );
+
+                // Create chart
+                new Chart(shoppingChart, {
+                  type: "bar",
+                  data: {
+                    labels: categories,
+                    datasets: [
+                      {
+                        label: "Popularity",
+                        data: values,
+                        backgroundColor: "rgba(13, 202, 240, 0.6)",
+                        borderColor: "rgba(13, 202, 240, 1)",
+                        borderWidth: 1,
+                      },
+                    ],
+                  },
+                  options: {
+                    responsive: true,
+                    plugins: {
+                      legend: {
+                        display: false,
+                      },
+                      title: {
+                        display: true,
+                        text: "Popular Product Categories",
+                        color: "#f8f9fa",
+                      },
+                    },
+                    scales: {
+                      x: {
+                        ticks: {
+                          color: "#adb5bd",
+                        },
+                        grid: {
+                          color: "rgba(255, 255, 255, 0.05)",
+                        },
+                      },
+                      y: {
+                        beginAtZero: true,
+                        ticks: {
+                          color: "#adb5bd",
+                        },
+                        grid: {
+                          color: "rgba(255, 255, 255, 0.05)",
+                        },
+                      },
+                    },
+                  },
+                });
+              }
+            })
+            .catch((error) => {
+              console.error("Error fetching categories:", error);
+
+              // Fallback chart with default categories
+              const categories = productCategories.slice(0, 7);
+              const values = categories.map(() =>
+                Math.floor(Math.random() * 100)
+              );
+
+              new Chart(shoppingChart, {
+                type: "bar",
+                data: {
+                  labels: categories,
+                  datasets: [
+                    {
+                      label: "Popularity",
+                      data: values,
+                      backgroundColor: "rgba(13, 202, 240, 0.6)",
+                      borderColor: "rgba(13, 202, 240, 1)",
+                      borderWidth: 1,
+                    },
+                  ],
+                },
+                options: {
+                  responsive: true,
+                  plugins: {
+                    legend: {
+                      display: false,
+                    },
+                    title: {
+                      display: true,
+                      text: "Popular Product Categories",
+                      color: "#f8f9fa",
+                    },
+                  },
+                  scales: {
+                    x: {
+                      ticks: {
+                        color: "#adb5bd",
+                      },
+                      grid: {
+                        color: "rgba(255, 255, 255, 0.05)",
+                      },
+                    },
+                    y: {
+                      beginAtZero: true,
+                      ticks: {
+                        color: "#adb5bd",
+                      },
+                      grid: {
+                        color: "rgba(255, 255, 255, 0.05)",
+                      },
+                    },
+                  },
+                },
+              });
+            });
+        }
+
+        // Initialize
+        initChart();
+
+        function updateRecommendations(recommendations) {
+          const container = document.getElementById("recommendationsContainer");
+          if (!recommendations || recommendations.length === 0) {
+            container.innerHTML =
+              '<p class="text-muted">No recommendations available</p>';
+            return;
+          }
+
+          container.innerHTML = recommendations
+            .map(
+              (rec) =>
+                `<span class="recommendation-item" onclick="processSearch('${rec.name}')">
+                        <span class="recommendation-label">📦</span>${rec.name}
+                    </span>`
+            )
+            .join("");
+        }
+      });
+    </script>
+  </body>
+</html>
